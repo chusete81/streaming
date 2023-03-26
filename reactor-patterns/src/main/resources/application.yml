@@ -1,0 +1,65 @@
+logging:
+    level:
+        root: INFO
+        org.apache.kafka.clients.admin.AdminClientConfig: INFO
+        org.apache.kafka.clients.consumer.ConsumerConfig: INFO
+        org.chusete.reactorpatterns.controller: DEBUG
+
+server:
+    port: 0
+
+spring:
+    application.name: org.chusete.reactor-patterns
+    output.ansi.enabled: always
+
+    cloud:
+        stream:
+            function:
+                definition: startFlow;processFlow;windowedProcessing;keyGroupingProcessing;randomProducer
+            bindings:
+                # event-based processors
+                startFlow-in-0:
+                    destination: ${spring.application.name}.some-producer.incoming
+                    group: ${spring.application.name}.startFlow
+                startFlow-out-0:
+                    destination: ${spring.application.name}.reactor-example.process-started
+                processFlow-in-0:
+                    destination: ${spring.application.name}.reactor-example.process-started
+                    group: ${spring.application.name}.processFlow
+                processFlow-out-0:
+                    destination: ${spring.application.name}.reactor-example.process-completed
+
+                windowedProcessing-in-0:
+                    destination: ${spring.application.name}.reactor-example.process-completed
+                    group: ${spring.application.name}.kstream-window-processor
+                windowedProcessing-out-0:
+                    destination: ${spring.application.name}.reactor-example.kstream-windowed-output
+                keyGroupingProcessing-in-0:
+                    destination: ${spring.application.name}.reactor-example.process-completed
+                    group: ${spring.application.name}.kstream-grouping-processor
+                keyGroupingProcessing-out-0:
+                    destination: ${spring.application.name}.reactor-example.kstream-grouped-output
+
+                # random producer
+                randomProducer-out-0:
+                    destination: ${spring.application.name}.some-producer.incoming
+            kafka:
+                binder:
+                    configuration:
+                        key.serializer: org.apache.kafka.common.serialization.StringSerializer
+                        key.deserializer: org.apache.kafka.common.serialization.StringDeserializer
+                streams:
+                    binder:
+                        configuration:
+                            commit.interval.ms: 5000
+                            default:
+                                key.serde: org.apache.kafka.common.serialization.Serdes$StringSerde
+                        functions:
+                            windowedProcessing:
+                                applicationId: ${spring.application.name}.streaming.windowedProcessing
+                            keyGroupingProcessing:
+                                applicationId: ${spring.application.name}.streaming.keyGroupingProcessing
+
+my-app-params:
+    maxNumWords: 12
+    maxWordLength: 10

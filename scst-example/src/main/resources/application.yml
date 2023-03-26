@@ -1,0 +1,26 @@
+logging:
+    level:
+        root: INFO
+
+server:
+    port: 0
+
+spring:
+    application.name: org.chusete.scst-example
+    output.ansi.enabled: always
+
+    cloud:
+        stream:
+            function:
+                definition: sourceExample;functionExample;sinkExample
+            bindings:
+                sourceExample-out-0:
+                    destination: ${spring.application.name}.incoming
+                functionExample-in-0:
+                    destination: ${spring.application.name}.incoming
+                    group: ${spring.application.name}.transformer
+                functionExample-out-0:
+                    destination: ${spring.application.name}.outgoing
+                sinkExample-in-0:
+                    destination: ${spring.application.name}.outgoing
+                    group: ${spring.application.name}.consumer
