@@ -22,8 +22,8 @@ public class StreamsConfiguration {
     }
 
     @Bean
-    public Function<Flux<ProcessStartedEvent>, Flux<Message<ProcessCompletedEvent>>> processFlow(ReactorProcessorExample reactorProcessorExample) {
-        return reactorProcessorExample::processFlow;
+    public Function<Flux<ProcessStartedEvent>, Flux<Message<ProcessCompletedEvent>>> enrichProcessing(ReactorProcessorExample reactorProcessorExample) {
+        return reactorProcessorExample::enrichProcessing;
     }
 
     @Bean

@@ -15,7 +15,7 @@ spring:
     cloud:
         stream:
             function:
-                definition: startFlow;processFlow;windowedProcessing;keyGroupingProcessing;randomProducer
+                definition: startFlow;enrichProcessing;windowedProcessing;keyGroupingProcessing;randomProducer
             bindings:
                 # event-based processors
                 startFlow-in-0:
@@ -23,10 +23,10 @@ spring:
                     group: ${spring.application.name}.startFlow
                 startFlow-out-0:
                     destination: ${spring.application.name}.reactor-example.process-started
-                processFlow-in-0:
+                enrichProcessing-in-0:
                     destination: ${spring.application.name}.reactor-example.process-started
-                    group: ${spring.application.name}.processFlow
-                processFlow-out-0:
+                    group: ${spring.application.name}.enrich-processor
+                enrichProcessing-out-0:
                     destination: ${spring.application.name}.reactor-example.process-completed
 
                 windowedProcessing-in-0:

@@ -43,7 +43,7 @@ public class ReactorProcessorExample {
                 .map(MessageUtils::setKey);
     }
 
-    public Flux<Message<ProcessCompletedEvent>> processFlow(Flux<ProcessStartedEvent> inbound) {
+    public Flux<Message<ProcessCompletedEvent>> enrichProcessing(Flux<ProcessStartedEvent> inbound) {
         return inbound
                 .map(event -> {
                     var originalString = event.getOriginalString();
