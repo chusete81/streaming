@@ -15,7 +15,8 @@ spring:
     cloud:
         stream:
             function:
-                definition: startFlow;enrichProcessing;windowedProcessing;keyGroupingProcessing;randomProducer
+                definition: startFlow;enrichProcessing;windowedProcessing;keyGroupingProcessing;forkPattern;joinPattern;randomProducer
+
             bindings:
                 # event-based processors
                 startFlow-in-0:
@@ -40,18 +41,31 @@ spring:
                 keyGroupingProcessing-out-0:
                     destination: ${spring.application.name}.reactor-example.kstream-grouped-output
 
+                forkPattern-in-0:
+                    destination: ${spring.application.name}.reactor-example.process-started
+                    group: ${spring.application.name}.fork-processor
+                forkPattern-out-0:
+                    destination: ${spring.application.name}.reactor-example.fork-example
+                joinPattern-in-0:
+                    destination: ${spring.application.name}.reactor-example.fork-example
+                    group: ${spring.application.name}.join-processor
+                joinPattern-out-0:
+                    destination: ${spring.application.name}.reactor-example.join-example
+
                 # random producer
                 randomProducer-out-0:
                     destination: ${spring.application.name}.some-producer.incoming
+
             kafka:
                 binder:
                     configuration:
                         key.serializer: org.apache.kafka.common.serialization.StringSerializer
                         key.deserializer: org.apache.kafka.common.serialization.StringDeserializer
+
                 streams:
                     binder:
                         configuration:
-                            commit.interval.ms: 5000
+                            commit.interval.ms: 1000
                             default:
                                 key.serde: org.apache.kafka.common.serialization.Serdes$StringSerde
                         functions:
@@ -59,7 +73,9 @@ spring:
                                 applicationId: ${spring.application.name}.streaming.windowedProcessing
                             keyGroupingProcessing:
                                 applicationId: ${spring.application.name}.streaming.keyGroupingProcessing
+                            joinPattern:
+                                applicationId: ${spring.application.name}.streaming.joinPattern
 
 my-app-params:
-    maxNumWords: 12
+    maxNumWords: 8
     maxWordLength: 10

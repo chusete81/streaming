@@ -11,15 +11,9 @@ import org.apache.kafka.streams.state.KeyValueStore;
 import org.apache.kafka.streams.state.WindowStore;
 import org.chusete.reactorpatterns.model.event.KStreamOutputEvent;
 import org.chusete.reactorpatterns.model.event.ProcessCompletedEvent;
-import org.chusete.reactorpatterns.model.event.ProcessStartedEvent;
-import org.chusete.reactorpatterns.service.MiscService;
 import org.chusete.reactorpatterns.util.CommonUtils;
-import org.chusete.reactorpatterns.util.MessageUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.support.serializer.JsonSerde;
-import org.springframework.messaging.Message;
 import org.springframework.stereotype.Component;
-import reactor.core.publisher.Flux;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -27,38 +21,9 @@ import java.util.Optional;
 
 @Slf4j
 @Component
-public class ReactorProcessorExample {
-    @Autowired
-    MiscService miscService;
+public class KStreamProcessorExample {
 
     private final static Duration DURATION = Duration.ofSeconds(60);
-
-    public Flux<Message<ProcessStartedEvent>> startFlow(Flux<String> inbound) {
-        return inbound
-                .map(s -> {
-                    var res = new ProcessStartedEvent(s);
-                    log.debug(res.toString());
-                    return res;
-                })
-                .map(MessageUtils::setKey);
-    }
-
-    public Flux<Message<ProcessCompletedEvent>> enrichProcessing(Flux<ProcessStartedEvent> inbound) {
-        return inbound
-                .map(event -> {
-                    var originalString = event.getOriginalString();
-                    var res = new ProcessCompletedEvent(
-                            originalString,
-                            originalString.toUpperCase(),
-                            miscService.wordCount(originalString),
-                            miscService.letterCount(originalString),
-                            event
-                    );
-                    log.debug(res.toString());
-                    return res;
-                })
-                .map(MessageUtils::setKey);
-    }
 
     /**
      * Groups all incoming events by the same fake key in order to apply window processing
@@ -122,5 +87,4 @@ public class ReactorProcessorExample {
 
         return aggregate;
     }
-
 }

@@ -1,7 +1,10 @@
 package org.chusete.reactorpatterns.configuration;
 
 import org.apache.kafka.streams.kstream.KStream;
-import org.chusete.reactorpatterns.controller.ReactorProcessorExample;
+import org.chusete.reactorpatterns.controller.ForkJoinPatternProcessorExample;
+import org.chusete.reactorpatterns.controller.KStreamProcessorExample;
+import org.chusete.reactorpatterns.controller.ReactorBasicProcessorExample;
+import org.chusete.reactorpatterns.model.event.ForkedEvent;
 import org.chusete.reactorpatterns.model.event.KStreamOutputEvent;
 import org.chusete.reactorpatterns.model.event.ProcessCompletedEvent;
 import org.chusete.reactorpatterns.model.event.ProcessStartedEvent;
@@ -15,25 +18,48 @@ import java.util.function.Function;
 @Configuration
 public class StreamsConfiguration {
 
-    // Reactor processors
+    // Reactor basic processors
     @Bean
-    public Function<Flux<String>, Flux<Message<ProcessStartedEvent>>> startFlow(ReactorProcessorExample reactorProcessorExample) {
-        return reactorProcessorExample::startFlow;
+    public Function<Flux<String>, Flux<Message<ProcessStartedEvent>>> startFlow(
+            ReactorBasicProcessorExample reactorBasicProcessorExample
+    ) {
+        return reactorBasicProcessorExample::startFlow;
     }
 
     @Bean
-    public Function<Flux<ProcessStartedEvent>, Flux<Message<ProcessCompletedEvent>>> enrichProcessing(ReactorProcessorExample reactorProcessorExample) {
-        return reactorProcessorExample::enrichProcessing;
+    public Function<Flux<ProcessStartedEvent>, Flux<Message<ProcessCompletedEvent>>> enrichProcessing(
+            ReactorBasicProcessorExample reactorBasicProcessorExample
+    ) {
+        return reactorBasicProcessorExample::enrichProcessing;
+    }
+
+    // KStream processors
+    @Bean
+    public Function<KStream<String, ProcessCompletedEvent>, KStream<String, KStreamOutputEvent>> windowedProcessing(
+            KStreamProcessorExample kStreamProcessorExample
+    ) {
+        return kStreamProcessorExample::windowedProcessing;
     }
 
     @Bean
-    public Function<KStream<String, ProcessCompletedEvent>, KStream<String, KStreamOutputEvent>> windowedProcessing(ReactorProcessorExample reactorProcessorExample) {
-        return reactorProcessorExample::windowedProcessing;
+    public Function<KStream<String, ProcessCompletedEvent>, KStream<String, KStreamOutputEvent>> keyGroupingProcessing(
+            KStreamProcessorExample kStreamProcessorExample
+    ) {
+        return kStreamProcessorExample::keyGroupingProcessing;
+    }
+
+    // Fork-join pattern
+    @Bean
+    public Function<Flux<ProcessStartedEvent>, Flux<Message<ForkedEvent>>> forkPattern(
+            ForkJoinPatternProcessorExample forkJoinPatternProcessorExample
+    ) {
+        return forkJoinPatternProcessorExample::forkPattern;
     }
 
     @Bean
-    public Function<KStream<String, ProcessCompletedEvent>, KStream<String, KStreamOutputEvent>> keyGroupingProcessing(ReactorProcessorExample reactorProcessorExample) {
-        return reactorProcessorExample::keyGroupingProcessing;
+    public Function<KStream<String, ForkedEvent>, KStream<String, ProcessCompletedEvent>> joinPattern(
+            ForkJoinPatternProcessorExample forkJoinPatternProcessorExample
+    ) {
+        return forkJoinPatternProcessorExample::joinPattern;
     }
-
 }
