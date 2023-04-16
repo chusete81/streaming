@@ -2,7 +2,9 @@ package org.chusete.reactorpatterns.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import org.chusete.reactorpatterns.configuration.PropertiesConfiguration;
+import org.chusete.reactorpatterns.configuration.WordsLoad;
 import org.chusete.reactorpatterns.service.MiscService;
+import org.chusete.reactorpatterns.util.CommonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +15,9 @@ public class MiscServiceImpl implements MiscService {
     @Autowired
     PropertiesConfiguration props;
 
+    @Autowired
+    WordsLoad words;
+
     @Override
     public String randomPhrase() {
         final var maxWordLength = props.getMaxWordLength();
@@ -21,7 +26,7 @@ public class MiscServiceImpl implements MiscService {
         StringBuilder sb = new StringBuilder();
         sb.append(randomWord(maxWordLength));
 
-        var numWords = randomInt(maxNumWords);
+        var numWords = CommonUtils.randomInt(maxNumWords);
         while (numWords-- > 0)
             sb.append(" ").append(randomWord(maxWordLength));
 
@@ -39,25 +44,12 @@ public class MiscServiceImpl implements MiscService {
     }
 
     private String randomWord(int limit) {
-        var numChars = randomInt(limit);
+        String word;
 
-        StringBuilder sb = new StringBuilder();
+        do {
+            word = words.getRandomWord();
+        } while (word.length() > limit);
 
-        while (numChars-- >= 0)
-            sb.append(randomLetter());
-
-        return sb.toString();
-    }
-
-    private String randomLetter() {
-        var letters = new String[] {
-                "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m",
-                "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"};
-
-        return letters[randomInt(letters.length)];
-    }
-
-    private int randomInt(int limit) {
-        return (int) (Math.random() * limit);
+        return word;
     }
 }
