@@ -3,13 +3,15 @@ package org.chusete.reactorpatterns.util;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.util.regex.Pattern;
+
 class CommonUtilsTest {
 
     @Test
-    void getCompactUUID() {
-        var s = CommonUtils.getCompactUUID();
+    void randomUUID() {
+        var s = CommonUtils.randomUUID();
 
-        Assertions.assertEquals(32, s.length());
+        Assertions.assertTrue(Pattern.compile(CommonUtils.REGEX_UUID).matcher(s).find());
     }
 
     @Test

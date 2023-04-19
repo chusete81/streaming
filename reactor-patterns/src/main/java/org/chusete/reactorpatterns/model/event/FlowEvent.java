@@ -15,7 +15,7 @@ public class FlowEvent implements Serializable {
     private String timeStamp;
 
     public FlowEvent() {
-        this.processId = CommonUtils.getCompactUUID();
+        this.processId = CommonUtils.randomUUID();
         this.timeStamp = CommonUtils.getUTCTimeStamp();
     }
 
