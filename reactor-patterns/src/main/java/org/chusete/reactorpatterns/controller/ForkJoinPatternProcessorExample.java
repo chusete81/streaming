@@ -57,7 +57,7 @@ public class ForkJoinPatternProcessorExample {
                         JointEvent::new,
                         this::joinAggregation,
                         Materialized
-                                .<String, JointEvent, KeyValueStore<Bytes, byte[]>>as("fork-join-pattern-example")
+                                .<String, JointEvent, KeyValueStore<Bytes, byte[]>>as("joinAggregationKTable")
                                 .withKeySerde(Serdes.String())
                                 .withValueSerde(new JsonSerde<>(JointEvent.class))
                                 //.withRetention(Duration.ofMinutes(2))

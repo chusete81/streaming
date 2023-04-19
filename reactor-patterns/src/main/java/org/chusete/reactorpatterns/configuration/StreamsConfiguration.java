@@ -1,6 +1,11 @@
 package org.chusete.reactorpatterns.configuration;
 
+import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.kstream.KStream;
+import org.apache.kafka.streams.state.KeyValueStore;
+import org.apache.kafka.streams.state.StoreBuilder;
+import org.apache.kafka.streams.state.Stores;
+import org.chusete.reactorpatterns.controller.CheckDuplicatesProcessorExample;
 import org.chusete.reactorpatterns.controller.ForkJoinPatternProcessorExample;
 import org.chusete.reactorpatterns.controller.KStreamProcessorExample;
 import org.chusete.reactorpatterns.controller.ReactorBasicProcessorExample;
@@ -61,5 +66,24 @@ public class StreamsConfiguration {
             ForkJoinPatternProcessorExample forkJoinPatternProcessorExample
     ) {
         return forkJoinPatternProcessorExample::joinPattern;
+    }
+
+    // Check duplicates pattern
+    @Bean
+    public Function<KStream<String, ForkedEvent>, KStream<String, ForkedEvent>>
+    checkDuplicatesPattern(
+            final CheckDuplicatesProcessorExample checkDuplicatesProcessorExample
+    ) {
+        return checkDuplicatesProcessorExample::checkDuplicatesPattern;
+    };
+
+    // Persistent key-value store (for duplicates check)
+    @Bean
+    public StoreBuilder<KeyValueStore<String, String>> duplicatedWordsStore() {
+        return Stores.keyValueStoreBuilder(
+                Stores.persistentKeyValueStore(CheckDuplicatesProcessorExample.CheckDuplicatesTransformer.STORE_NAME),
+                Serdes.String(),
+                Serdes.String()
+        );
     }
 }

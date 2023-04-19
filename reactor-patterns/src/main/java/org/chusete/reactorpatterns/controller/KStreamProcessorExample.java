@@ -39,7 +39,7 @@ public class KStreamProcessorExample {
                         KStreamOutputEvent::new,
                         this::aggregation,
                         Materialized
-                                .<String, KStreamOutputEvent, WindowStore<Bytes, byte[]>>as("words-per-min-windowed")
+                                .<String, KStreamOutputEvent, WindowStore<Bytes, byte[]>>as("wordsPerMinWindowedKTable")
                                 .withKeySerde(Serdes.String())
                                 .withValueSerde(new JsonSerde<>(KStreamOutputEvent.class))
                                 .withRetention(DURATION.multipliedBy(2))
@@ -61,7 +61,7 @@ public class KStreamProcessorExample {
                         KStreamOutputEvent::new,
                         this::aggregation,
                         Materialized
-                                .<String, KStreamOutputEvent, KeyValueStore<Bytes, byte[]>>as("words-per-min-grouped")
+                                .<String, KStreamOutputEvent, KeyValueStore<Bytes, byte[]>>as("wordsPerMinGroupedKTable")
                                 .withKeySerde(Serdes.String())
                                 .withValueSerde(new JsonSerde<>(KStreamOutputEvent.class))
                                 .withRetention(DURATION.multipliedBy(2))

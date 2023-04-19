@@ -15,46 +15,57 @@ spring:
     cloud:
         stream:
             function:
-                definition: startFlow;enrichProcessing;windowedProcessing;keyGroupingProcessing;forkPattern;joinPattern;randomProducer
+                definition: startFlow;enrichProcessing;windowedProcessing;keyGroupingProcessing;forkPattern;joinPattern;checkDuplicatesPattern;randomProducer
 
             bindings:
-                # event-based processors
+                # event-based simple flow processors
                 startFlow-in-0:
-                    destination: ${spring.application.name}.some-producer.incoming
+                    destination: ${spring.application.name}.topic.some-producer.incoming
                     group: ${spring.application.name}.startFlow
                 startFlow-out-0:
-                    destination: ${spring.application.name}.reactor-example.process-started
+                    destination: ${spring.application.name}.topic.example.simple.process-started
                 enrichProcessing-in-0:
-                    destination: ${spring.application.name}.reactor-example.process-started
+                    destination: ${spring.application.name}.topic.example.simple.process-started
                     group: ${spring.application.name}.enrich-processor
                 enrichProcessing-out-0:
-                    destination: ${spring.application.name}.reactor-example.process-completed
+                    destination: ${spring.application.name}.topic.example.simple.process-completed
 
+                # KStream processing (windowed, key-grouping)
                 windowedProcessing-in-0:
-                    destination: ${spring.application.name}.reactor-example.process-completed
+                    destination: ${spring.application.name}.topic.example.simple.process-completed
                     group: ${spring.application.name}.kstream-window-processor
                 windowedProcessing-out-0:
-                    destination: ${spring.application.name}.reactor-example.kstream-windowed-output
+                    destination: ${spring.application.name}.topic.example.kstream.windowed-output
                 keyGroupingProcessing-in-0:
-                    destination: ${spring.application.name}.reactor-example.process-completed
+                    destination: ${spring.application.name}.topic.example.simple.process-completed
                     group: ${spring.application.name}.kstream-grouping-processor
                 keyGroupingProcessing-out-0:
-                    destination: ${spring.application.name}.reactor-example.kstream-grouped-output
+                    destination: ${spring.application.name}.topic.example.kstream.grouped-output
 
+                # fork-join pattern
                 forkPattern-in-0:
-                    destination: ${spring.application.name}.reactor-example.process-started
+                    destination: ${spring.application.name}.topic.example.simple.process-started
                     group: ${spring.application.name}.fork-processor
                 forkPattern-out-0:
-                    destination: ${spring.application.name}.reactor-example.fork-example
+                    destination: ${spring.application.name}.topic.example.fork-join.fork-out
                 joinPattern-in-0:
-                    destination: ${spring.application.name}.reactor-example.fork-example
+                    destination: ${spring.application.name}.topic.example.fork-join.fork-out
                     group: ${spring.application.name}.join-processor
                 joinPattern-out-0:
-                    destination: ${spring.application.name}.reactor-example.join-example
+                    destination: ${spring.application.name}.topic.example.fork-join.join-out
+
+                # check for duplicates pattern
+                checkDuplicatesPattern-in-0:
+                    destination: ${spring.application.name}.topic.example.fork-join.fork-out
+                    group: ${spring.application.name}.check-duplicates-processor
+                checkDuplicatesPattern-out-0:
+                    destination: ${spring.application.name}.topic.example.duplicates.unique-words
+                checkDuplicatesPattern-out-1:
+                    destination: ${spring.application.name}.topic.example.duplicates.duplicated-words
 
                 # random producer
                 randomProducer-out-0:
-                    destination: ${spring.application.name}.some-producer.incoming
+                    destination: ${spring.application.name}.topic.some-producer.incoming
 
             kafka:
                 binder:
@@ -65,16 +76,19 @@ spring:
                 streams:
                     binder:
                         configuration:
-                            commit.interval.ms: 1000
+                            commit.interval.ms: 5000
                             default:
                                 key.serde: org.apache.kafka.common.serialization.Serdes$StringSerde
+                        # Spring Cloud Stream functions that return a KStream
                         functions:
                             windowedProcessing:
-                                applicationId: ${spring.application.name}.streaming.windowedProcessing
+                                applicationId: ${spring.application.name}.stream.windowedProcessing
                             keyGroupingProcessing:
-                                applicationId: ${spring.application.name}.streaming.keyGroupingProcessing
+                                applicationId: ${spring.application.name}.stream.keyGroupingProcessing
                             joinPattern:
-                                applicationId: ${spring.application.name}.streaming.joinPattern
+                                applicationId: ${spring.application.name}.stream.joinPattern
+                            checkDuplicatesPattern:
+                                applicationId: ${spring.application.name}.stream.checkDuplicatesPattern
 
 my-app-params:
     maxNumWords: 8
