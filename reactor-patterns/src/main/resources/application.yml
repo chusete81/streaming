@@ -15,7 +15,7 @@ spring:
     cloud:
         stream:
             function:
-                definition: startFlow;enrichProcessing;windowedProcessing;keyGroupingProcessing;forkPattern;joinPattern;checkDuplicatesPattern;tumblingWindow;randomProducer
+                definition: startFlow;enrichProcessing;windowedProcessing;keyGroupingProcessing;forkPattern;joinPattern;checkDuplicatesPattern;tumblingWindowDuplicates;randomProducer
 
             bindings:
                 # event-based simple flow processors
@@ -63,11 +63,11 @@ spring:
                 checkDuplicatesPattern-out-1:
                     destination: ${spring.application.name}.topic.example.duplicates.duplicated-words
 
-                # window tumbling
-                tumblingWindow-in-0:
+                # remove duplicates in tumbling window
+                tumblingWindowDuplicates-in-0:
                     destination: ${spring.application.name}.topic.example.tumbling-window.in
                     group: ${spring.application.name}.tumbling-window-processor
-                tumblingWindow-out-0:
+                tumblingWindowDuplicates-out-0:
                     destination: ${spring.application.name}.topic.example.tumbling-window.out
 
                 # random producer
@@ -96,8 +96,8 @@ spring:
                                 applicationId: ${spring.application.name}.stream.joinPattern
                             checkDuplicatesPattern:
                                 applicationId: ${spring.application.name}.stream.checkDuplicatesPattern
-                            tumblingWindow:
-                                applicationId: ${spring.application.name}.stream.tumblingWindow-v1.0
+                            tumblingWindowDuplicates:
+                                applicationId: ${spring.application.name}.stream.tumblingWindowDuplicates
 
 my-app-params:
     maxNumWords: 8

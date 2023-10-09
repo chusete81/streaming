@@ -84,11 +84,12 @@ public class StreamsConfiguration {
         );
     }
 
+    // Remove duplicates in tumbling window
     @Bean
-    public Function<KStream<String, String>, KStream<String, String>> tumblingWindow(
+    public Function<KStream<String, String>, KStream<String, String>> tumblingWindowDuplicates(
             KStreamTumblingWindowProcessorExample kStreamTumblingWindowProcessorExample
     ) {
-        return kStreamTumblingWindowProcessorExample::tumblingWindow;
+        return kStreamTumblingWindowProcessorExample::tumblingWindowDuplicates;
     }
 
 }
