@@ -5,10 +5,7 @@ import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.state.KeyValueStore;
 import org.apache.kafka.streams.state.StoreBuilder;
 import org.apache.kafka.streams.state.Stores;
-import org.chusete.reactorpatterns.controller.CheckDuplicatesProcessorExample;
-import org.chusete.reactorpatterns.controller.ForkJoinPatternProcessorExample;
-import org.chusete.reactorpatterns.controller.KStreamProcessorExample;
-import org.chusete.reactorpatterns.controller.ReactorBasicProcessorExample;
+import org.chusete.reactorpatterns.controller.*;
 import org.chusete.reactorpatterns.model.event.ForkedEvent;
 import org.chusete.reactorpatterns.model.event.KStreamOutputEvent;
 import org.chusete.reactorpatterns.model.event.ProcessCompletedEvent;
@@ -86,4 +83,12 @@ public class StreamsConfiguration {
                 Serdes.String()
         );
     }
+
+    @Bean
+    public Function<KStream<String, String>, KStream<String, String>> tumblingWindow(
+            KStreamTumblingWindowProcessorExample kStreamTumblingWindowProcessorExample
+    ) {
+        return kStreamTumblingWindowProcessorExample::tumblingWindow;
+    }
+
 }

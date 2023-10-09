@@ -15,7 +15,7 @@ spring:
     cloud:
         stream:
             function:
-                definition: startFlow;enrichProcessing;windowedProcessing;keyGroupingProcessing;forkPattern;joinPattern;checkDuplicatesPattern;randomProducer
+                definition: startFlow;enrichProcessing;windowedProcessing;keyGroupingProcessing;forkPattern;joinPattern;checkDuplicatesPattern;tumblingWindow;randomProducer
 
             bindings:
                 # event-based simple flow processors
@@ -63,6 +63,13 @@ spring:
                 checkDuplicatesPattern-out-1:
                     destination: ${spring.application.name}.topic.example.duplicates.duplicated-words
 
+                # window tumbling
+                tumblingWindow-in-0:
+                    destination: ${spring.application.name}.topic.example.tumbling-window.in
+                    group: ${spring.application.name}.tumbling-window-processor
+                tumblingWindow-out-0:
+                    destination: ${spring.application.name}.topic.example.tumbling-window.out
+
                 # random producer
                 randomProducer-out-0:
                     destination: ${spring.application.name}.topic.some-producer.incoming
@@ -76,7 +83,7 @@ spring:
                 streams:
                     binder:
                         configuration:
-                            commit.interval.ms: 5000
+                            commit.interval.ms: 250
                             default:
                                 key.serde: org.apache.kafka.common.serialization.Serdes$StringSerde
                         # Spring Cloud Stream functions that return a KStream
@@ -89,6 +96,8 @@ spring:
                                 applicationId: ${spring.application.name}.stream.joinPattern
                             checkDuplicatesPattern:
                                 applicationId: ${spring.application.name}.stream.checkDuplicatesPattern
+                            tumblingWindow:
+                                applicationId: ${spring.application.name}.stream.tumblingWindow-v1.0
 
 my-app-params:
     maxNumWords: 8
