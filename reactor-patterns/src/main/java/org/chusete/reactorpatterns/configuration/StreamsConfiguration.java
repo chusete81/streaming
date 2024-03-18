@@ -6,10 +6,7 @@ import org.apache.kafka.streams.state.KeyValueStore;
 import org.apache.kafka.streams.state.StoreBuilder;
 import org.apache.kafka.streams.state.Stores;
 import org.chusete.reactorpatterns.controller.*;
-import org.chusete.reactorpatterns.model.event.ForkedEvent;
-import org.chusete.reactorpatterns.model.event.KStreamOutputEvent;
-import org.chusete.reactorpatterns.model.event.ProcessCompletedEvent;
-import org.chusete.reactorpatterns.model.event.ProcessStartedEvent;
+import org.chusete.reactorpatterns.model.event.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.Message;
@@ -73,6 +70,13 @@ public class StreamsConfiguration {
     ) {
         return checkDuplicatesProcessorExample::checkDuplicatesPattern;
     };
+
+    @Bean
+    public Function<KStream<String, FlowEvent>, Function<KStream<String, FlowEvent>,
+        Function<KStream<String, FlowEvent>, KStream<String, ProcessCompletedEvent>>>>
+    flowEndJoiner(final FlowEndJoinerProcessor flowEndJoiner) {
+        return sig -> (reqs -> (resps -> flowEndJoiner.waitForAsyncEventsFinalize(sig, reqs, resps)));
+    }
 
     // Persistent key-value store (for duplicates check)
     @Bean

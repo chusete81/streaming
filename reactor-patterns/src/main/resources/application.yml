@@ -1,9 +1,12 @@
 logging:
     level:
         root: INFO
-        org.apache.kafka.clients.admin.AdminClientConfig: INFO
-        org.apache.kafka.clients.consumer.ConsumerConfig: INFO
+        org.apache.kafka.clients.admin.AdminClientConfig: WARN
+        org.apache.kafka.clients.consumer.ConsumerConfig: WARN
+        org.apache.kafka.clients.producer.ProducerConfig: WARN
+        org.apache.kafka.streams.StreamsConfig: WARN
         org.chusete.reactorpatterns.controller: DEBUG
+        org.chusete.reactorpatterns.controller.FlowEndJoinerProcessor: TRACE
 
 server:
     port: 0
@@ -15,7 +18,7 @@ spring:
     cloud:
         stream:
             function:
-                definition: startFlow;enrichProcessing;windowedProcessing;keyGroupingProcessing;forkPattern;joinPattern;checkDuplicatesPattern;tumblingWindowDuplicates;randomProducer
+                definition: startFlow;enrichProcessing;windowedProcessing;keyGroupingProcessing;forkPattern;joinPattern;checkDuplicatesPattern;tumblingWindowDuplicates;flowEndJoiner;randomProducer
 
             bindings:
                 # event-based simple flow processors
@@ -70,6 +73,18 @@ spring:
                 tumblingWindowDuplicates-out-0:
                     destination: ${spring.application.name}.topic.example.tumbling-window.out
 
+                flowEndJoiner-in-0:
+                    destination: ${spring.application.name}.topic.example.flow-end-joiner.signal-in
+                    group: ${spring.application.name}.flow-end-joiner-processor
+                flowEndJoiner-in-1:
+                    destination: ${spring.application.name}.topic.example.flow-end-joiner.requests-in
+                    group: ${spring.application.name}.flow-end-joiner-processor
+                flowEndJoiner-in-2:
+                    destination: ${spring.application.name}.topic.example.flow-end-joiner.responses-in
+                    group: ${spring.application.name}.flow-end-joiner-processor
+                flowEndJoiner-out-0:
+                    destination: ${spring.application.name}.topic.example.flow-end-joiner.completed-out
+
                 # random producer
                 randomProducer-out-0:
                     destination: ${spring.application.name}.topic.some-producer.incoming
@@ -98,6 +113,8 @@ spring:
                                 applicationId: ${spring.application.name}.stream.checkDuplicatesPattern
                             tumblingWindowDuplicates:
                                 applicationId: ${spring.application.name}.stream.tumblingWindowDuplicates
+                            flowEndJoiner:
+                                applicationId: ${spring.application.name}.stream.flowEndJoiner
 
 my-app-params:
     maxNumWords: 8
