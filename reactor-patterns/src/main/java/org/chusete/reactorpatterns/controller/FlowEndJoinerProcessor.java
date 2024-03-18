@@ -36,7 +36,7 @@ public class FlowEndJoinerProcessor {
                 .<String, FlowEvent, KeyValueStore<Bytes, byte[]>>as("flowEndJoinerSignalsKTable")
                 .withKeySerde(Serdes.String())
                 .withValueSerde(new JsonSerde<>(FlowEvent.class))
-                .withRetention(Duration.ofMinutes(1440L))
+                .withRetention(duration)
             );
 
         // aggregate requests in ktable
@@ -51,7 +51,7 @@ public class FlowEndJoinerProcessor {
                     .<String, FlowEndJoinerAggregateDto, KeyValueStore<Bytes, byte[]>>as("flowEndJoinerRequestsKTable")
                     .withKeySerde(Serdes.String())
                     .withValueSerde(new JsonSerde<>(FlowEndJoinerAggregateDto.class))
-                    .withRetention(Duration.ofMinutes(1440L))
+                    .withRetention(duration)
             );
 
         // aggregate responses in ktable
@@ -66,7 +66,7 @@ public class FlowEndJoinerProcessor {
                     .<String, FlowEndJoinerAggregateDto, KeyValueStore<Bytes, byte[]>>as("flowEndJoinerResponsesKTable")
                     .withKeySerde(Serdes.String())
                     .withValueSerde(new JsonSerde<>(FlowEndJoinerAggregateDto.class))
-                    .withRetention(Duration.ofMinutes(1440L))
+                    .withRetention(duration)
             );
 
         // first join received signal with previously aggregated requests
@@ -88,7 +88,7 @@ public class FlowEndJoinerProcessor {
                 .<String, FlowEndJoinerAggregateDto, KeyValueStore<Bytes, byte[]>>as("flowEndJoinerSignalsRequestsJoinKTable")
                 .withKeySerde(Serdes.String())
                 .withValueSerde(new JsonSerde<>(FlowEndJoinerAggregateDto.class))
-                .withRetention(Duration.ofMinutes(1440L))
+                .withRetention(duration)
             );
 
         // then join aggregated responses with previously aggregated signal and responses
@@ -112,7 +112,7 @@ public class FlowEndJoinerProcessor {
                 .<String, FlowEndJoinerAggregateDto, KeyValueStore<Bytes, byte[]>>as("flowEndJoinerSignalsRequestsResponsesJoinKTable")
                 .withKeySerde(Serdes.String())
                 .withValueSerde(new JsonSerde<>(FlowEndJoinerAggregateDto.class))
-                .withRetention(Duration.ofMinutes(1440L))
+                .withRetention(duration)
         );
 
         // send final event when number of received responses reaches expected
@@ -148,6 +148,8 @@ public class FlowEndJoinerProcessor {
         log.debug("Response aggregated for PID {}, total {}", current.getProcessId(), aggregate.getReceivedAsyncResponses());
         return aggregate;
     }
+    
+    private static final Duration duration = Duration.ofMinutes(1440L);
 }
 
 @Getter
